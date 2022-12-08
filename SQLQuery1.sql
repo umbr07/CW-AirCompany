@@ -1,5 +1,14 @@
 --use AirCompany;
+create table Bookings (
+	BookingId int not null IDENTITY PRIMARY KEY,
+	PassengerId int not null,
+	BookingDateTime date DEFAULT GETDATE(),
+	FlightId int not null,
+	Amount int not null,
+	Price int not null
+)
 
+drop table Bookings;
 --Add Users--
 go
 CREATE PROCEDURE sp_InsertUsers
@@ -84,6 +93,19 @@ begin
 end;
 
 exec sp_SelectUsersInAdmin;
+
+-----------Select Users in User Panel---------------------
+go
+Create procedure sp_SelectUsersInUser
+	@id_users int out
+as
+begin
+	Select * from Users where Users.Id = @id_users
+end;
+
+exec sp_SelectUsersInUser @id_users = 1;
+
+drop procedure sp_SelectUsersInUser;
 
 
 --------------------------------------------Airports----------------------------------------------
@@ -218,6 +240,9 @@ drop procedure sp_SearchFlight;
 
 
 --------------------------------------------Bookings----------------------------------------------
+
+----ярюрся гюйюгю лнфер ашрэ нфхдюмхе ондрбепфд╗м----------------
+
 ----Add Order-------------------
 go
 Create procedure sp_NewAddOrder
@@ -225,36 +250,27 @@ Create procedure sp_NewAddOrder
 	@id_flight int,
 	@amount int,
 	@price int
-	@BookingDatetime datetime = getDate(); ----онд бнопнянл----
 as
 begin
-	insert into Bookings values(@id_user,@id_flight,@amount,@price)
+	insert into Bookings (PassengerId, FlightId,Amount,Price) values(@id_user,@id_flight,@amount,@price)
 	update Flights set Flights.TotalPlaces -= @amount from Flights where Flights.FlightId = @id_flight
 end;
 
-----намнбкемхе ярюрсяю гюйюгю вепег кхвмши йюахмер онкэгнбюрекъ----
+drop procedure sp_NewAddOrder;
 
---	CREATE PROCEDURE NEWORDER --щрс опнжедспс лш оепеохяшбюел--
---(
---@id_user int,
---@id_schedule int,	
---@countOrder int
---)
---as
---begin try
---	begin
---		insert into Orders values (@id_user, @id_schedule, @countOrder)
---		update Schedule  set Schedule.countTicket -= @countOrder
---			from Schedule where Schedule.id_schedule = @id_schedule
---		commit
---	end
---end try
---begin catch
---	select ERROR_MESSAGE() as ErrorMessage;
---end catch
---go
+exec sp_NewAddOrder @id_user = 3, @id_flight = 1, @amount = 3, @price = 1200;
 
-----Delete Order----
+----намнбкемхе ярюрсяю гюйюгю вепег кхвмши йюахмер онкэгнбюрекъ----днаюбхрэ онке OrderStatus-------------------------
+go
+Create procedure sp_OrderStatus
+	@status varchar(50) = 'confirmed',
+	@id_booking int
+as
+begin
+	update Bookings set Bookings.OrderStatus = @status from Bookings where Bookings.BookingId = @id_booking
+end;
+
+----Delete Order----дндекюрэ сдюкемхе гюйюгю-----------------------------------------
 go
 Create procedure sp_DeleteOrder
 	@id_booking int
@@ -266,6 +282,7 @@ begin
 	delete from Bookings where Bookings.BookingId = @id_booking
 end;
 
+exec sp_DeleteOrder @id_booking = 3;
 
 --go
 --create PROCEDURE DELETEORDER  --щрс опнжедспс лш оепеохяшбюел--
@@ -287,7 +304,6 @@ end;
 --	SELECT ERROR_MESSAGE() AS ErrorMessage;
 --end catch
 
-----ядекюрэ днаюбкемхе дюрш б апнмхпнбюмхе я онлныэч рпхцепю опх япюаюршбюмхх опнжедспш----
 
 --------------------------------------------Tickets----------------------------------------------
 ----ядекюрэ днаюбкемхе ахкерю вепег рпхцеп опх япюаюршбюмхх опнжедспш хглемемхе ярюрсяю гюйюгю----
