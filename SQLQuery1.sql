@@ -1,22 +1,44 @@
 --use AirCompany;
 
+
 create table Bookings (
 	BookingId int not null IDENTITY PRIMARY KEY,
 	PassengerId int not null,
-	BookingDateTime date DEFAULT GETDATE(),  --онлемърэ тсмйжхч мю NOW()
+	BookingDateTime datetime DEFAULT GETDATE(),
 	FlightId int not null,
 	Amount int not null,
-	Price int not null
-	--янгдюрэ онке ярюрся
+	Price int not null,
+	Status varchar(50) not null DEFAULT 'Waiting'
 )
 drop table Bookings;
 
 
 ----янгдюрэ рюакхжс юмюкхгю деърекэмнярх йнлоюмхх------------------
+
 ----янгдюрэ рюакхжс оепяннмюкю х охкнрнб йнрнпше мюундъряъ мю пеияе------------------
+create table Staff (
+	PersonalId int not null IDENTITY PRIMARY KEY,
+	FirstName nvarchar(50) not null,
+	SecondName nvarchar(50) not null,
+	LastName nvarchar(50) not null,
+	Birthday date not null,
+	Post nvarchar(50) not null,
+	Experience varchar(10) not null,
+	Number varchar(20) not null,
+	FlightId int not null
+)
 
+drop table Staff;
 
---------------Users------------------------------------------------------------------
+----намнбхрэ рюакхжс ющпнонпрнб х днаюбхрэ рхо ющпнонпрю------------------
+----ондслюрэ йюй ядекюрэ опюбхкэмн----------------------------------------
+--create table Airports (
+--	AirportCode varchar(50) not null PRIMARY KEY,
+--	Name varchar(50) not null,
+--	City varchar(50) not null,
+--	AirportType varchar(50) not null
+--)
+--------------Procedure on Users------------------------------------------------------------------
 --Add Users--
 go
 CREATE PROCEDURE sp_InsertUsers
@@ -61,7 +83,7 @@ end;
 
 drop procedure sp_GetUser;
 
---Update User---онд бнопнянл еы╗ йюй опюбхкэмн ядекюрэ---
+--Update User---онд бнопнянл еы╗ йюй опюбхкэмн ядекюрэ вепег опхкнфемхе---
 go
 CREATE PROCEDURE sp_UpdateUsers
 	@id_users int,
@@ -116,7 +138,7 @@ exec sp_SelectUsersInUser @id_users = 1;
 drop procedure sp_SelectUsersInUser;
 
 
---------------------------------------------Airports----------------------------------------------
+--------------------------------------------Procedure on Airports----------------------------------------------
 ---------Add Airports----------
 go
 Create procedure sp_AddAirports
@@ -161,7 +183,11 @@ end;
 --exec sp_ShowAllAirports;
 
 
---------------------------------------------Flights----------------------------------------------
+--------------------------------------------Procedure on Flights----------------------------------------------
+
+------------------днаюбхрэ ярюрся пеияю (гюйнмвем хкх б опнжеяяе)--------------------------------
+------------------еякх гюйнмвем,рн оняке хд╗р ондяв╗р гюйнмвеммшу пеиянб х ме гюйнмвеммшу х ху яннрмньемхе--------------------
+
 ----Add Flights------------------------------------
 go
 Create procedure sp_AddFlight
@@ -248,7 +274,7 @@ drop procedure sp_SearchFlight;
 
 
 
---------------------------------------------Bookings----------------------------------------------
+--------------------------------------------Procedure on Bookings----------------------------------------------
 ----Add Order-------------------
 go
 Create procedure sp_NewAddOrder
@@ -270,12 +296,14 @@ exec sp_NewAddOrder @id_user = 1, @id_flight = 1, @amount = 8, @price = 3200;
 ----намнбкемхе ярюрсяю гюйюгю вепег оюмекэ юдлхмхярпюрнпю------------------------------------------------------------
 go
 Create procedure sp_OrderStatus
-	@status varchar(50) = 'confirmed',
+	@status varchar(50) = 'Confirmed',
 	@id_booking int
 as
 begin
-	update Bookings set Bookings.OrderStatus = @status from Bookings where Bookings.BookingId = @id_booking
+	update Bookings set Bookings.Status = @status from Bookings where Bookings.BookingId = @id_booking
 end;
+
+exec sp_OrderStatus @id_booking = 1;
 
 ----Delete Order----дндекюрэ сдюкемхе он йнккхвеярбс ахкернб-----------------------------------------
 ----ме онкмне сдюкемхе гюйюгю, ю вюярхвмне сдюкемхе
@@ -293,23 +321,6 @@ end;
 exec sp_DeleteOrder @id_booking = 3, @amount = 8;
 
 drop procedure sp_DeleteOrder;
---go
---create PROCEDURE DELETEORDER  --щрс опнжедспс лш оепеохяшбюел--
---  @id_booking int
---AS
---begin
---	 	 update Schedule set Schedule.countTicket += Orders.countOrder from Schedule inner join Orders 
---		 on Schedule.id_schedule = Orders.id_schedule and Orders.id_order = @id_order
---		 where Schedule.id_schedule in (select id_schedule from Orders WHERE id_order = @id_order)  	 
---		 delete from Orders where Orders.id_order = @id_order
---	 commit
---	end
---END try
---Begin catch
---	rollback--
---	SELECT ERROR_MESSAGE() AS ErrorMessage;
---end catch
-
 
 ----Select of order by ID-----------------------------------
 go 
@@ -350,14 +361,47 @@ begin
 	Select * from Bookings
 end;
 
---------------------------------------------Tickets----------------------------------------------
+--------------------------------------------Triggers and Procedure on Tickets----------------------------------------------
 ----ядекюрэ днаюбкемхе ахкерю вепег рпхцеп опх япюаюршбюмхх опнжедспш хглемемхе ярюрсяю гюйюгю----
-create trigger Add_to_Tickets
-on Bookings
-after insert
+--create trigger Add_to_Tickets
+--on Bookings
+--after insert
 	
+--as
+--insert into Tickets(
+
+
+--------------------------------------------Procedure on Staff----------------------------------------------
+
+----Add Personal in Staff table-----------------------------
+go
+create procedure sp_InsertStaff
+	@FirstName nvarchar(50),
+	@SecondName nvarchar(50),
+	@LastName nvarchar(50),
+	@Birthday date,
+	@Post nvarchar(50),
+	@Experience varchar(10),
+	@Number varchar(20),
+	@FlightId int
 as
-insert into Tickets(
+begin
+	INSERT INTO Staff(FirstName,SecondName,LastName,Birthday,Post,Experience,Number,FlightId)
+	values (@FirstName,@SecondName,@LastName,@Birthday,@Post,@Experience,@Number,@FlightId)
+end;
 
+exec sp_InsertStaff @FirstName = 'Dikun', @SecondName = 'Igor', @LastName = 'Vyachaslavovish',
+@Birthday = '28-10-2002', @Post = 'Pilot',@Experience = '3 ЦНДЮ',@Number = '+375296436373', @FlightId = 1;
 
---------------------------------------------Staff----------------------------------------------
+drop procedure sp_InsertStaff;
+
+----Delete Personal in Staff table-----------------------------
+go
+create procedure sp_DeleteStaff
+	@id_person int
+as
+begin
+	delete Staff where Staff.PersonalId = @id_person
+end;
+
+exec sp_DeleteStaff @id_person = 1;
