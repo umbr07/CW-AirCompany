@@ -247,6 +247,7 @@ exec sp_SearchFlight @Departureairport = 'Moskow', @ArrivalAirport = 'Berlin';
 drop procedure sp_SearchFlight;
 
 
+
 --------------------------------------------Bookings----------------------------------------------
 ----Add Order-------------------
 go
@@ -263,9 +264,10 @@ end;
 
 drop procedure sp_NewAddOrder;
 
-exec sp_NewAddOrder @id_user = 7, @id_flight = 1, @amount = 8, @price = 3200;
+exec sp_NewAddOrder @id_user = 1, @id_flight = 1, @amount = 8, @price = 3200;
 
 ----намнбкемхе ярюрсяю гюйюгю вепег кхвмши йюахмер онкэгнбюрекъ----днаюбхрэ онке OrderStatus-------------------------
+----намнбкемхе ярюрсяю гюйюгю вепег оюмекэ юдлхмхярпюрнпю------------------------------------------------------------
 go
 Create procedure sp_OrderStatus
 	@status varchar(50) = 'confirmed',
@@ -275,32 +277,30 @@ begin
 	update Bookings set Bookings.OrderStatus = @status from Bookings where Bookings.BookingId = @id_booking
 end;
 
-----Delete Order----дндекюрэ сдюкемхе гюйюгю-----------------------------------------
+----Delete Order----дндекюрэ сдюкемхе он йнккхвеярбс ахкернб-----------------------------------------
+----ме онкмне сдюкемхе гюйюгю, ю вюярхвмне сдюкемхе
 go
 Create procedure sp_DeleteOrder
-	@id_booking int
+	@id_booking int,
+	@amount int
 as
 begin
-	update Flights set Flights.TotalPlaces += Bookings.Amount from Flights inner join Bookings
-	on Flights.FlightId = Bookings.BookingId and Bookings.BookingId = @id_booking
-	where Flights.FlightId in ( select FlightId from Bookings where BookingId = @id_booking)
+	select @amount = Bookings.Amount from Bookings where Bookings.BookingId = @id_booking
+	update Flights set Flights.TotalPlaces += @amount from Flights inner join Bookings on Flights.FlightId = Bookings.FlightId and Bookings.BookingId = @id_booking
 	delete from Bookings where Bookings.BookingId = @id_booking
 end;
 
-exec sp_DeleteOrder @id_booking = 10;
+exec sp_DeleteOrder @id_booking = 3, @amount = 8;
 
 drop procedure sp_DeleteOrder;
 --go
 --create PROCEDURE DELETEORDER  --щрс опнжедспс лш оепеохяшбюел--
---  (
 --  @id_booking int
---  )
 --AS
---	begin
---	 	 update Schedule set Schedule.countTicket += Orders.countOrder
---			 from Schedule inner join Orders 
---			 on Schedule.id_schedule = Orders.id_schedule and Orders.id_order = @id_order
---			 where Schedule.id_schedule in (select id_schedule from Orders WHERE id_order = @id_order)  	 
+--begin
+--	 	 update Schedule set Schedule.countTicket += Orders.countOrder from Schedule inner join Orders 
+--		 on Schedule.id_schedule = Orders.id_schedule and Orders.id_order = @id_order
+--		 where Schedule.id_schedule in (select id_schedule from Orders WHERE id_order = @id_order)  	 
 --		 delete from Orders where Orders.id_order = @id_order
 --	 commit
 --	end
