@@ -1,14 +1,22 @@
 --use AirCompany;
+
 create table Bookings (
 	BookingId int not null IDENTITY PRIMARY KEY,
 	PassengerId int not null,
-	BookingDateTime date DEFAULT GETDATE(),
+	BookingDateTime date DEFAULT GETDATE(),  --онлемърэ тсмйжхч мю NOW()
 	FlightId int not null,
 	Amount int not null,
 	Price int not null
+	--янгдюрэ онке ярюрся
 )
-
 drop table Bookings;
+
+
+----янгдюрэ рюакхжс юмюкхгю деърекэмнярх йнлоюмхх------------------
+----янгдюрэ рюакхжс оепяннмюкю х охкнрнб йнрнпше мюундъряъ мю пеияе------------------
+
+
+--------------Users------------------------------------------------------------------
 --Add Users--
 go
 CREATE PROCEDURE sp_InsertUsers
@@ -240,9 +248,6 @@ drop procedure sp_SearchFlight;
 
 
 --------------------------------------------Bookings----------------------------------------------
-
-----ярюрся гюйюгю лнфер ашрэ нфхдюмхе ондрбепфд╗м----------------
-
 ----Add Order-------------------
 go
 Create procedure sp_NewAddOrder
@@ -258,7 +263,7 @@ end;
 
 drop procedure sp_NewAddOrder;
 
-exec sp_NewAddOrder @id_user = 3, @id_flight = 1, @amount = 3, @price = 1200;
+exec sp_NewAddOrder @id_user = 7, @id_flight = 1, @amount = 8, @price = 3200;
 
 ----намнбкемхе ярюрсяю гюйюгю вепег кхвмши йюахмер онкэгнбюрекъ----днаюбхрэ онке OrderStatus-------------------------
 go
@@ -275,15 +280,16 @@ go
 Create procedure sp_DeleteOrder
 	@id_booking int
 as
-begin 
+begin
 	update Flights set Flights.TotalPlaces += Bookings.Amount from Flights inner join Bookings
 	on Flights.FlightId = Bookings.BookingId and Bookings.BookingId = @id_booking
 	where Flights.FlightId in ( select FlightId from Bookings where BookingId = @id_booking)
 	delete from Bookings where Bookings.BookingId = @id_booking
 end;
 
-exec sp_DeleteOrder @id_booking = 3;
+exec sp_DeleteOrder @id_booking = 10;
 
+drop procedure sp_DeleteOrder;
 --go
 --create PROCEDURE DELETEORDER  --щрс опнжедспс лш оепеохяшбюел--
 --  (
@@ -305,5 +311,53 @@ exec sp_DeleteOrder @id_booking = 3;
 --end catch
 
 
+----Select of order by ID-----------------------------------
+go 
+Create procedure sp_GetOrderById
+	@id_booking int
+as
+begin
+	Select * from Bookings where Bookings.BookingId = @id_booking
+end;
+
+drop procedure sp_GetOrderById;
+
+exec sp_GetOrderById @id_booking = 1;
+
+-------------------Show the user's order by his ID--------------------------------------
+go
+Create procedure sp_GetUserOrder
+	@id_user int
+as
+begin try
+	SELECT Bookings.BookingId, Flights.DepartureDateTime, Flights.DepartureAirport, 
+	Flights.ArrivalDateTime, Flights.ArrivalAirport, Bookings.Amount 
+	FROM Bookings INNER JOIN
+	Flights on Flights.FlightId = Bookings.FlightId and  Bookings.PassengerId = @id_user
+end try 
+begin catch
+	rollback
+	SELECT ERROR_MESSAGE() AS ErrorMessage;
+end catch
+
+exec sp_GetUserOrder @id_user = 2;
+
+----Select order-----------------------------------
+go 
+Create procedure sp_ShowOrder
+as
+begin
+	Select * from Bookings
+end;
+
 --------------------------------------------Tickets----------------------------------------------
 ----ядекюрэ днаюбкемхе ахкерю вепег рпхцеп опх япюаюршбюмхх опнжедспш хглемемхе ярюрсяю гюйюгю----
+create trigger Add_to_Tickets
+on Bookings
+after insert
+	
+as
+insert into Tickets(
+
+
+--------------------------------------------Staff----------------------------------------------
