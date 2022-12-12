@@ -67,7 +67,7 @@ namespace CourseWork.AdminForms
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.ReadOnly = true;
             this.dataGridView1.RowTemplate.Height = 25;
-            this.dataGridView1.Size = new System.Drawing.Size(699, 200);
+            this.dataGridView1.Size = new System.Drawing.Size(741, 200);
             this.dataGridView1.TabIndex = 0;
             this.dataGridView1.CellClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellClick);
             // 
@@ -189,7 +189,7 @@ namespace CourseWork.AdminForms
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(34)))), ((int)(((byte)(33)))), ((int)(((byte)(74)))));
-            this.ClientSize = new System.Drawing.Size(745, 411);
+            this.ClientSize = new System.Drawing.Size(785, 448);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.textBox7);
             this.Controls.Add(this.button1);

@@ -59,6 +59,9 @@ namespace CourseWork
             // 
             // button1
             // 
+            this.button1.FlatAppearance.BorderSize = 2;
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button1.ForeColor = System.Drawing.Color.White;
             this.button1.Location = new System.Drawing.Point(117, 413);
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(135, 26);
@@ -80,9 +83,12 @@ namespace CourseWork
             // 
             // button2
             // 
+            this.button2.FlatAppearance.BorderSize = 2;
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.button2.ForeColor = System.Drawing.Color.White;
             this.button2.Location = new System.Drawing.Point(12, 12);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(64, 23);
+            this.button2.Size = new System.Drawing.Size(64, 26);
             this.button2.TabIndex = 4;
             this.button2.Text = "Назад";
             this.button2.UseVisualStyleBackColor = true;

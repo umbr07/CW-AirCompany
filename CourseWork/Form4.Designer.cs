@@ -64,7 +64,7 @@ namespace CourseWork
             this.panelMenu.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelMenu.Location = new System.Drawing.Point(0, 0);
             this.panelMenu.Name = "panelMenu";
-            this.panelMenu.Size = new System.Drawing.Size(193, 534);
+            this.panelMenu.Size = new System.Drawing.Size(193, 571);
             this.panelMenu.TabIndex = 1;
             // 
             // iconButton5
@@ -221,7 +221,7 @@ namespace CourseWork
             this.panelTitleBar.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelTitleBar.Location = new System.Drawing.Point(193, 0);
             this.panelTitleBar.Name = "panelTitleBar";
-            this.panelTitleBar.Size = new System.Drawing.Size(761, 75);
+            this.panelTitleBar.Size = new System.Drawing.Size(801, 75);
             this.panelTitleBar.TabIndex = 2;
             this.panelTitleBar.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panelTitleBar_MouseDown);
             // 
@@ -254,7 +254,7 @@ namespace CourseWork
             this.panelShadow.Dock = System.Windows.Forms.DockStyle.Top;
             this.panelShadow.Location = new System.Drawing.Point(193, 75);
             this.panelShadow.Name = "panelShadow";
-            this.panelShadow.Size = new System.Drawing.Size(761, 9);
+            this.panelShadow.Size = new System.Drawing.Size(801, 9);
             this.panelShadow.TabIndex = 3;
             // 
             // panelDesktop
@@ -264,7 +264,7 @@ namespace CourseWork
             this.panelDesktop.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelDesktop.Location = new System.Drawing.Point(193, 84);
             this.panelDesktop.Name = "panelDesktop";
-            this.panelDesktop.Size = new System.Drawing.Size(761, 450);
+            this.panelDesktop.Size = new System.Drawing.Size(801, 487);
             this.panelDesktop.TabIndex = 4;
             // 
             // label1
@@ -282,13 +282,13 @@ namespace CourseWork
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(954, 534);
+            this.ClientSize = new System.Drawing.Size(994, 571);
             this.Controls.Add(this.panelDesktop);
             this.Controls.Add(this.panelShadow);
             this.Controls.Add(this.panelTitleBar);
             this.Controls.Add(this.panelMenu);
-            this.MaximumSize = new System.Drawing.Size(970, 573);
-            this.MinimumSize = new System.Drawing.Size(970, 573);
+            this.MaximumSize = new System.Drawing.Size(1010, 610);
+            this.MinimumSize = new System.Drawing.Size(990, 580);
             this.Name = "Form4";
             this.Text = "Form4";
             this.panelMenu.ResumeLayout(false);
