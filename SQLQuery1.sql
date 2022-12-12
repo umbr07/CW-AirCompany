@@ -38,6 +38,8 @@ drop table Staff;
 --	City varchar(50) not null,
 --	AirportType varchar(50) not null
 --)
+
+
 --------------Procedure on Users------------------------------------------------------------------
 --Add Users--
 go
@@ -390,8 +392,8 @@ begin
 	values (@FirstName,@SecondName,@LastName,@Birthday,@Post,@Experience,@Number,@FlightId)
 end;
 
-exec sp_InsertStaff @FirstName = 'Dikun', @SecondName = 'Igor', @LastName = 'Vyachaslavovish',
-@Birthday = '28-10-2002', @Post = 'Pilot',@Experience = '3 года',@Number = '+375296436373', @FlightId = 1;
+exec sp_InsertStaff @FirstName = 'Yaskovish', @SecondName = 'Mark', @LastName = 'Eduardovich',
+@Birthday = '19-04-2002', @Post = 'Pilot',@Experience = '2 года',@Number = '+375298436373', @FlightId = 1;
 
 drop procedure sp_InsertStaff;
 
@@ -405,3 +407,46 @@ begin
 end;
 
 exec sp_DeleteStaff @id_person = 1;
+
+----Update Personal information in Staff table------------------
+go
+create procedure sp_UpdateStaffInfo
+	@PersonId int,
+	@FirstName nvarchar(50),
+	@SecondName nvarchar(50),
+	@LastName nvarchar(50),
+	@Birthday date,
+	@Post nvarchar(50),
+	@Experience varchar(10),
+	@Number varchar(20),
+	@FlightId int
+as
+begin
+	update Staff set Staff.FirstName = @FirstName where Staff.PersonalId = @PersonId
+	update Staff set Staff.SecondName = @SecondName where Staff.PersonalId = @PersonId
+	update Staff set Staff.LastName = @LastName where Staff.PersonalId = @PersonId
+	update Staff set Staff.Birthday = @Birthday where Staff.PersonalId = @PersonId
+	update Staff set Staff.Post = @Post where Staff.PersonalId = @PersonId
+	update Staff set Staff.Experience = @Experience where Staff.PersonalId = @PersonId
+	update Staff set Staff.Number = @Number where Staff.PersonalId = @PersonId
+	update Staff set Staff.FlightId = @FlightId where Staff.PersonalId = @PersonId
+end;
+
+------------Shows which pilot is on which flight-------------------------------------
+--go
+--create procedure sp_GetStaffOnFlight
+--	@id_person int
+--as
+--begin try
+--	select Flights.FlightId,Staff.FirstName, Staff.SecondName, Staff.LastName, Staff.Post, Flights.DepartureAirport, Flights.ArrivalAirport
+--	from Staff inner join 
+--	Flights on Flights.FlightId = Staff.FlightId and Staff.PersonalId = @id_person
+--end try
+--begin catch
+--	rollback
+--	SELECT ERROR_MESSAGE() AS ErrorMessage;
+--end catch
+
+--drop procedure sp_GetStaffOnFlight;
+
+--exec sp_GetStaffOnFlight @id_person = 1;
