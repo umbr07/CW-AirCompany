@@ -19,7 +19,7 @@ create table Flights (
 	FlightNumber int not null,
 	DepartureDateTime datetime not null,
 	DepartureAirport varchar(50) not null,
-	TotalPlaces int not null check(TotalPlaces <= 200),
+	TotalPlaces int not null check(TotalPlaces <= 200 and TotalPlaces >= 0),
 	ArrivalDateTime datetime not null,
 	ArrivalAirport varchar(50) not null,
 	Price int not null,
@@ -101,6 +101,7 @@ begin
 	where Users.Id = @id_users
 end;
 
+exec sp_UpdateInfoInAdminPanel @role = 1, @login = 'Admin', @password = '12345', @fname = 'Igor', @lname = 'Dikun', @mail = 'dikun9489@gmail.com', @id_users = 1; 
 
 --Login Users--
 go
@@ -224,8 +225,6 @@ exec sp_ShowAllAirports;
 
 
 --------------------------------------------Procedure on Flights----------------------------------------------
-
-------------------днаюбхрэ ярюрся пеияю (гюйнмвем хкх б опнжеяяе)--------------------------------
 ------------------еякх гюйнмвем,рн оняке хд╗р ондяв╗р гюйнмвеммшу пеиянб х ме гюйнмвеммшу х ху яннрмньемхе--------------------
 
 ----Add Flights------------------------------------
@@ -243,7 +242,9 @@ begin
 	insert into Flights(FlightNumber, DepartureDateTime, DepartureAirport, TotalPlaces, ArrivalDateTime,ArrivalAirport,Price)
 	values (@Flightnumber, @DepartureDatetime, @Departureairport, @Totalplaces,@ArrivalDatetime, @Arrivalairport, @price)
 end;
-	
+
+exec sp_AddFlight @Flightnumber = 1, @DepartureDatetime = '15-12-2022 8:00',@Departureairport = 'Berlin',@Totalplaces = 200, @ArrivalDatetime = '16-12-2022 19:00', @Arrivalairport = 'Los-Angeles', @price = 300;
+
 ----Update info Flight------------------------------
 go
 Create procedure sp_UpdateInfoFlight
@@ -307,15 +308,15 @@ begin catch
 	select ERROR_MESSAGE() as ErrorMessage;
 end catch
 
-exec sp_SearchFlight @DepartureDatetime = '2022-05-12 12:35:40.000', @Departureairport = 'Berlin', @ArrivalAirport = 'Moskow';
-exec sp_SearchFlight @Departureairport = 'Moskow', @ArrivalAirport = 'Berlin';
+exec sp_SearchFlight @DepartureDatetime = '08:00 15-12-2022', @Departureairport = 'Berlin', @ArrivalAirport = 'Los-Angeles';
+exec sp_SearchFlight @Departureairport = 'Berlin', @ArrivalAirport = 'Los-Angeles';
 
 drop procedure sp_SearchFlight;
 
 
 
 --------------------------------------------Procedure on Bookings----------------------------------------------
-----Add Order-------------------
+----Add Order----------пЮАНРЮЕР ОНВРХ ОПЮБХКЭМН---------
 go
 Create procedure sp_NewAddOrder
 	@id_user int,
@@ -324,13 +325,19 @@ Create procedure sp_NewAddOrder
 	@price int
 as
 begin
+	DECLARE @total int;
+	select @total = Flights.TotalPlaces from Flights where @id_flight = Flights.FlightId
+	if
+	(@amount > @total) Raiserror(N'Seems the user that trying to delete does not exist',11,1)
+	else
 	insert into Bookings (PassengerId, FlightId,Amount,Price) values(@id_user,@id_flight,@amount,@price)
+	update Bookings set Bookings.Price *= @amount from Bookings
 	update Flights set Flights.TotalPlaces -= @amount from Flights where Flights.FlightId = @id_flight
 end;
 
 drop procedure sp_NewAddOrder;
 
-exec sp_NewAddOrder @id_user = 1, @id_flight = 1, @amount = 8, @price = 3200;
+exec sp_NewAddOrder @id_flight = 1, @id_user = 1, @amount = 6, @price = 300;
 
 ----намнбкемхе ярюрсяю гюйюгю вепег кхвмши йюахмер онкэгнбюрекъ----днаюбхрэ онке OrderStatus-------------------------
 ----намнбкемхе ярюрсяю гюйюгю вепег оюмекэ юдлхмхярпюрнпю------------------------------------------------------------
