@@ -1,6 +1,44 @@
 --use AirCompany;
 
+--------Table a Users----------
+create table Users (
+	Id int not null IDENTITY Primary key,
+	Login varchar(50) not null,
+	Password varchar(50) not null,
+	FirstName nvarchar(50) not null,
+	LastName nvarchar(50) not null,
+	Email varchar(50) not null,
+	Roles int not null DEFAULT '0'
+)
 
+drop table Users;
+
+--------Table a Flights----------
+create table Flights (
+	FlightId int not null IDENTITY Primary key,
+	FlightNumber int not null,
+	DepartureDateTime datetime not null,
+	DepartureAirport varchar(50) not null,
+	TotalPlaces int not null check(TotalPlaces <= 200),
+	ArrivalDateTime datetime not null,
+	ArrivalAirport varchar(50) not null,
+	Price int not null,
+	Status varchar(50) not null DEFAULT 'In process'
+)
+
+drop table Flights;
+
+--------Table a Airports----------
+create table Airports (
+	AirportCode varchar(50) not null Primary key,
+	Name varchar(50) not null,
+	City varchar(50),
+	AirportType varchar(50) not null
+)
+
+drop table Airports;
+
+--------Table a Bookings----------
 create table Bookings (
 	BookingId int not null IDENTITY PRIMARY KEY,
 	PassengerId int not null,
@@ -10,6 +48,7 @@ create table Bookings (
 	Price int not null,
 	Status varchar(50) not null DEFAULT 'Waiting'
 )
+
 drop table Bookings;
 
 
@@ -30,15 +69,6 @@ create table Staff (
 
 drop table Staff;
 
-----ÎÁÍÎÂÈÒÜ ÒÀÁËÈÖÓ ÀÝÐÎÏÎÐÒÎÂ È ÄÎÁÀÂÈÒÜ ÒÈÏ ÀÝÐÎÏÎÐÒÀ------------------
-----ÏÎÄÓÌÀÒÜ ÊÀÊ ÑÄÅËÀÒÜ ÏÐÀÂÈËÜÍÎ----------------------------------------
---create table Airports (
---	AirportCode varchar(50) not null PRIMARY KEY,
---	Name varchar(50) not null,
---	City varchar(50) not null,
---	AirportType varchar(50) not null
---)
-
 
 --------------Procedure on Users------------------------------------------------------------------
 --Add Users--
@@ -54,6 +84,7 @@ BEGIN
 	INSERT INTO Users(Login,Password,FirstName,LastName,Email) values (@login,@password,@fname,@lname,@mail)
 END;
 
+exec sp_InsertUsers @login = 'Admin', @password = '12345', @fname = 'Igor', @lname = 'Dikun', @mail = 'dikun9489@gmail.com';
 --Update info in AdminPanel---
 go
 CREATE PROCEDURE sp_UpdateInfoInAdminPanel
@@ -114,8 +145,6 @@ begin
 	delete Users where Users.Id = @id_user
 end;
 
--- ALTER TABLE Users ADD DEFAULT '0' FOR Roles;
-
 -----------Select Users in Admin Panel---------------------
 go
 CREATE PROCEDURE sp_SelectUsersInAdmin
@@ -140,17 +169,22 @@ exec sp_SelectUsersInUser @id_users = 1;
 drop procedure sp_SelectUsersInUser;
 
 
---------------------------------------------Procedure on Airports----------------------------------------------
+--------------------------------------------Procedure on Airports-----------------ÌÅÆÄÓÍÀÐÎÄÍÛÉ ÐÅÃÈÎÍÀËÜÍÛÉ-----------------------------
 ---------Add Airports----------
 go
 Create procedure sp_AddAirports
 	@AirportCode varchar(50),
 	@Name varchar(50),
-	@City varchar(50)
+	@City varchar(50),
+	@AirportType varchar(50)
 as
 begin
-	INSERT INTO Airports(AirportCode,Name,City) values (@AirportCode,@Name,@City)
+	INSERT INTO Airports(AirportCode,Name,City,AirportType) values (@AirportCode,@Name,@City,@AirportType)
 end;
+
+drop procedure sp_AddAirports;
+
+exec sp_AddAirports @AirportCode = 'BRL', @Name = 'Shwartz', @City = 'Berlin', @AirportType = 'International';
 
 ---------Delete Airports----------
 go
@@ -166,13 +200,17 @@ go
 Create procedure sp_UpdateAirports
 	@AirportCode varchar(50),
 	@Name varchar(50),
-	@City varchar(50)
+	@City varchar(50),
+	@AirportType varchar(50)
 as
 begin
 	update Airports set Airports.AirportCode = @AirportCode where Airports.AirportCode = @AirportCode
 	update Airports set Airports.Name = @Name where Airports.AirportCode = @AirportCode
 	update Airports set Airports.City = @City where Airports.AirportCode = @AirportCode
+	update Airports set Airports.AirportType = @AirportType where Airports.AirportCode = @AirportCode
 end;
+
+drop procedure sp_UpdateAirports;
 
 ---------Show all Airports----------
 go
@@ -182,7 +220,7 @@ begin
 	select * from Airports
 end;
 
---exec sp_ShowAllAirports;
+exec sp_ShowAllAirports;
 
 
 --------------------------------------------Procedure on Flights----------------------------------------------
@@ -196,7 +234,7 @@ Create procedure sp_AddFlight
 	@Flightnumber int,
 	@DepartureDatetime datetime,
 	@Departureairport varchar(50),
-	@Totalplaces int,
+	@Totalplaces int, --îãðàíè÷åíèå 
 	@ArrivalDatetime datetime,
 	@Arrivalairport varchar(50),
 	@price int
@@ -307,8 +345,7 @@ end;
 
 exec sp_OrderStatus @id_booking = 1;
 
-----Delete Order----ÄÎÄÅËÀÒÜ ÓÄÀËÅÍÈÅ ÏÎ ÊÎËËÈ×ÅÑÒÂÓ ÁÈËÅÒÎÂ-----------------------------------------
-----ÍÅ ÏÎËÍÎÅ ÓÄÀËÅÍÈÅ ÇÀÊÀÇÀ, À ×ÀÑÒÈ×ÍÎÅ ÓÄÀËÅÍÈÅ
+----Delete Order--------------------------------------
 go
 Create procedure sp_DeleteOrder
 	@id_booking int,
