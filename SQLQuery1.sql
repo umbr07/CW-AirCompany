@@ -1,6 +1,6 @@
 --use AirCompany;
 
---------Table a Users----------
+--------Users table----------
 create table Users (
 	Id int not null IDENTITY Primary key,
 	Login varchar(50) not null,
@@ -13,7 +13,7 @@ create table Users (
 
 drop table Users;
 
---------Table a Flights----------
+--------Flights table----------
 create table Flights (
 	FlightId int not null IDENTITY Primary key,
 	FlightNumber int not null,
@@ -38,7 +38,7 @@ create table Airports (
 
 drop table Airports;
 
---------Table a Bookings----------
+--------Bookings table----------
 create table Bookings (
 	BookingId int not null IDENTITY PRIMARY KEY,
 	PassengerId int not null,
@@ -51,10 +51,7 @@ create table Bookings (
 
 drop table Bookings;
 
-
-----—Œ«ƒ¿“‹ “¿¡À»÷” ¿Õ¿À»«¿ ƒ≈ﬂ“≈À‹ÕŒ—“»  ŒÃœ¿Õ»»------------------
-
-----—Œ«ƒ¿“‹ “¿¡À»÷” œ≈–—ŒŒÕ¿À¿ » œ»ÀŒ“Œ¬  Œ“Œ–€≈ Õ¿’Œƒﬂ“—ﬂ Õ¿ –≈…—≈------------------
+----Staff table------------------
 create table Staff (
 	PersonalId int not null IDENTITY PRIMARY KEY,
 	FirstName nvarchar(50) not null,
@@ -68,6 +65,15 @@ create table Staff (
 )
 
 drop table Staff;
+
+--------Statistics table----------
+create table Statistic(
+	ConfirmedFlightsCount int not null,
+	CanceledFlightCount int not null,
+	Profit int
+)
+
+drop table Statistic;
 
 
 --------------Procedure on Users------------------------------------------------------------------
@@ -243,7 +249,7 @@ begin
 	values (@Flightnumber, @DepartureDatetime, @Departureairport, @Totalplaces,@ArrivalDatetime, @Arrivalairport, @price)
 end;
 
-exec sp_AddFlight @Flightnumber = 1, @DepartureDatetime = '15-12-2022 8:00',@Departureairport = 'Berlin',@Totalplaces = 200, @ArrivalDatetime = '16-12-2022 19:00', @Arrivalairport = 'Los-Angeles', @price = 300;
+exec sp_AddFlight @Flightnumber = 1, @DepartureDatetime = '15-12-2022 8:00',@Departureairport = 'Los-Angeles',@Totalplaces = 200, @ArrivalDatetime = '16-12-2022 15:45', @Arrivalairport = 'Moskow', @price = 640;
 
 ----Update info Flight------------------------------
 go
@@ -267,6 +273,29 @@ begin
 	update Flights set Flights.Price = @price where Flights.FlightId = @Flights_id
 end;
 
+----Update Flights status------------------------------
+go
+create procedure sp_FlightStatusCompleted
+	@status varchar(50) = 'Completed',
+	@Flight_id int
+as
+begin
+update Flights set Flights.Status = @status where Flights.FlightId = @Flight_id
+end;
+
+exec sp_FlightStatusCompleted @Flight_id = 3;
+
+
+go
+create procedure sp_FlightStatusCanceled
+	@status varchar(50) = 'Canceled',
+	@Flight_id int
+as
+begin
+update Flights set Flights.Status = @status where Flights.FlightId = @Flight_id
+end;
+
+exec sp_FlightStatusCanceled @Flight_id = 1;
 ----Delete Flights------------------------------
 go
 Create procedure sp_DeleteFlight
@@ -331,13 +360,13 @@ begin
 	(@amount > @total) Raiserror(N'Seems the user that trying to delete does not exist',11,1)
 	else
 	insert into Bookings (PassengerId, FlightId,Amount,Price) values(@id_user,@id_flight,@amount,@price)
-	update Bookings set Bookings.Price *= @amount from Bookings
+	update Bookings set Bookings.Price *= @amount from Bookings 
 	update Flights set Flights.TotalPlaces -= @amount from Flights where Flights.FlightId = @id_flight
 end;
 
 drop procedure sp_NewAddOrder;
 
-exec sp_NewAddOrder @id_flight = 1, @id_user = 1, @amount = 6, @price = 300;
+exec sp_NewAddOrder @id_flight = 1, @id_user = 1, @amount = 5, @price = 300;
 
 ----Œ¡ÕŒ¬À≈Õ»≈ —“¿“”—¿ «¿ ¿«¿ ◊≈–≈« À»◊Õ€…  ¿¡»Õ≈“ œŒÀ‹«Œ¬¿“≈Àﬂ----ƒŒ¡¿¬»“‹ œŒÀ≈ OrderStatus-------------------------
 ----Œ¡ÕŒ¬À≈Õ»≈ —“¿“”—¿ «¿ ¿«¿ ◊≈–≈« œ¿Õ≈À‹ ¿ƒÃ»Õ»—“–¿“Œ–¿------------------------------------------------------------
@@ -397,7 +426,7 @@ begin catch
 	SELECT ERROR_MESSAGE() AS ErrorMessage;
 end catch
 
-exec sp_GetUserOrder @id_user = 2;
+exec sp_GetUserOrder @id_user = 1;
 
 ----Select order-----------------------------------
 go 
@@ -407,14 +436,10 @@ begin
 	Select * from Bookings
 end;
 
+exec sp_ShowOrder;
+
 --------------------------------------------Triggers and Procedure on Tickets----------------------------------------------
 ----—ƒ≈À¿“‹ ƒŒ¡¿¬À≈Õ»≈ ¡»À≈“¿ ◊≈–≈« “–»√≈– œ–» —–¿¡¿“€¬¿Õ»» œ–Œ÷≈ƒ”–€ »«Ã≈Õ≈Õ»≈ —“¿“”—¿ «¿ ¿«¿----
---create trigger Add_to_Tickets
---on Bookings
---after insert
-	
---as
---insert into Tickets(
 
 
 --------------------------------------------Procedure on Staff----------------------------------------------
@@ -436,7 +461,7 @@ begin
 	values (@FirstName,@SecondName,@LastName,@Birthday,@Post,@Experience,@Number,@FlightId)
 end;
 
-exec sp_InsertStaff @FirstName = 'Yaskovish', @SecondName = 'Mark', @LastName = 'Eduardovich',
+exec sp_InsertStaff @FirstName = 'Yaskovich', @SecondName = 'Mark', @LastName = 'Eduardovich',
 @Birthday = '19-04-2002', @Post = 'Pilot',@Experience = '2 „Ó‰‡',@Number = '+375298436373', @FlightId = 1;
 
 drop procedure sp_InsertStaff;
@@ -477,20 +502,50 @@ begin
 end;
 
 ------------Shows which pilot is on which flight-------------------------------------
---go
---create procedure sp_GetStaffOnFlight
---	@id_person int
---as
---begin try
---	select Flights.FlightId,Staff.FirstName, Staff.SecondName, Staff.LastName, Staff.Post, Flights.DepartureAirport, Flights.ArrivalAirport
---	from Staff inner join 
---	Flights on Flights.FlightId = Staff.FlightId and Staff.PersonalId = @id_person
---end try
---begin catch
---	rollback
---	SELECT ERROR_MESSAGE() AS ErrorMessage;
---end catch
+go
+create procedure sp_GetStaffOnFlight
+	@id_person int
+as
+begin try
+	select Flights.FlightId,Staff.FirstName, Staff.SecondName, Staff.LastName, Staff.Post, Flights.DepartureAirport, Flights.ArrivalAirport
+	from Staff inner join 
+	Flights on Flights.FlightId = Staff.FlightId and Staff.PersonalId = @id_person
+end try
+begin catch
+	rollback
+	SELECT ERROR_MESSAGE() AS ErrorMessage;
+end catch
 
---drop procedure sp_GetStaffOnFlight;
+drop procedure sp_GetStaffOnFlight;
 
---exec sp_GetStaffOnFlight @id_person = 1;
+exec sp_GetStaffOnFlight @id_person = 2;
+
+----------------------------------Procedure on Statistics--------------------------
+go
+create procedure sp_CompletedCount
+as
+begin
+	DECLARE @statusConfirmed int;
+	DECLARE @statusCanceled int;
+	select @statusConfirmed = (select COUNT(*) from Flights where Flights.Status = 'Completed')
+	select @statusCanceled = (select COUNT(*) from Flights where Flights.Status = 'Canceled')
+	insert into Statistic(ConfirmedFlightsCount,CanceledFlightCount)
+	values (@statusConfirmed,@statusCanceled)
+end;
+
+exec sp_CompletedCount;
+
+
+go
+create procedure sp_UpdateCount
+as
+begin
+	DECLARE @statusConfirmed int;
+	DECLARE @statusCanceled int;
+	select @statusConfirmed = (select COUNT(*) from Flights where Flights.Status = 'Completed')
+	select @statusCanceled = (select COUNT(*) from Flights where Flights.Status = 'Canceled')
+	update Statistic set Statistic.ConfirmedFlightsCount = @statusConfirmed
+	update Statistic set Statistic.CanceledFlightCount = @statusCanceled
+end;
+
+	exec sp_UpdateCount;
