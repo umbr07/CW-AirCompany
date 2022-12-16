@@ -30,8 +30,8 @@ drop table Flights;
 
 --------Table a Airports----------
 create table Airports (
-	AirportCode varchar(50) not null Primary key,
-	Name varchar(50) not null,
+	AirportCode varchar(50) not null,
+	Name varchar(50) not null Primary key,
 	City varchar(50),
 	AirportType varchar(50) not null
 )
@@ -191,7 +191,10 @@ end;
 
 drop procedure sp_AddAirports;
 
-exec sp_AddAirports @AirportCode = 'BRL', @Name = 'Shwartz', @City = 'Berlin', @AirportType = 'International';
+exec sp_AddAirports @AirportCode = 'BRL', @Name = 'Berlin', @City = 'Berlin', @AirportType = 'International';
+exec sp_AddAirports @AirportCode = 'MSK', @Name = 'Moskow', @City = 'Moskow', @AirportType = 'International';
+exec sp_AddAirports @AirportCode = 'LAS', @Name = 'Los-Angeles', @City = 'Los-Angeles', @AirportType = 'International';
+exec sp_AddAirports @AirportCode = 'PRS', @Name = 'Paris', @City = 'Paris', @AirportType = 'International';
 
 ---------Delete Airports----------
 go
@@ -231,8 +234,6 @@ exec sp_ShowAllAirports;
 
 
 --------------------------------------------Procedure on Flights----------------------------------------------
-------------------ЕСЛИ ЗАКОНЧЕН,ТО ПОСЛЕ ИДЁТ ПОДСЧЁТ ЗАКОНЧЕННЫХ РЕЙСОВ И НЕ ЗАКОНЧЕННЫХ И ИХ СООТНОШЕНИЕ--------------------
-
 ----Add Flights------------------------------------
 go
 Create procedure sp_AddFlight
@@ -249,7 +250,10 @@ begin
 	values (@Flightnumber, @DepartureDatetime, @Departureairport, @Totalplaces,@ArrivalDatetime, @Arrivalairport, @price)
 end;
 
-exec sp_AddFlight @Flightnumber = 1, @DepartureDatetime = '15-12-2022 8:00',@Departureairport = 'Los-Angeles',@Totalplaces = 200, @ArrivalDatetime = '16-12-2022 15:45', @Arrivalairport = 'Moskow', @price = 640;
+exec sp_AddFlight @Flightnumber = 1, @DepartureDatetime = '16-12-2022 9:55',@Departureairport = 'Los-Angeles',@Totalplaces = 200, @ArrivalDatetime = '16-12-2022 22:45', @Arrivalairport = 'Paris', @price = 780;
+exec sp_AddFlight @Flightnumber = 2, @DepartureDatetime = '18-12-2022 16:37',@Departureairport = 'Moskow',@Totalplaces = 200, @ArrivalDatetime = '19-12-2022 07:45', @Arrivalairport = 'Los-Angeles', @price = 1640;
+exec sp_AddFlight @Flightnumber = 3, @DepartureDatetime = '18-12-2022 8:00',@Departureairport = 'Berlin',@Totalplaces = 200, @ArrivalDatetime = '18-12-2022 15:45', @Arrivalairport = 'Moskow', @price = 640;
+exec sp_AddFlight @Flightnumber = 4, @DepartureDatetime = '20-12-2022 12:28',@Departureairport = 'Berlin',@Totalplaces = 200, @ArrivalDatetime = '20-12-2022 19:56', @Arrivalairport = 'Paris', @price = 340;
 
 ----Update info Flight------------------------------
 go
@@ -338,14 +342,14 @@ begin catch
 end catch
 
 exec sp_SearchFlight @DepartureDatetime = '08:00 15-12-2022', @Departureairport = 'Berlin', @ArrivalAirport = 'Los-Angeles';
-exec sp_SearchFlight @Departureairport = 'Berlin', @ArrivalAirport = 'Los-Angeles';
+exec sp_SearchFlight @Departureairport = 'Berlin', @ArrivalAirport = 'Moskow';
 
 drop procedure sp_SearchFlight;
 
 
 
 --------------------------------------------Procedure on Bookings----------------------------------------------
-----Add Order----------Работает почти правильно---------
+----Add Order------------------
 go
 Create procedure sp_NewAddOrder
 	@id_user int,
@@ -355,18 +359,20 @@ Create procedure sp_NewAddOrder
 as
 begin
 	DECLARE @total int;
+	declare @id_booking int;
 	select @total = Flights.TotalPlaces from Flights where @id_flight = Flights.FlightId
 	if
 	(@amount > @total) Raiserror(N'Seems the user that trying to delete does not exist',11,1)
 	else
 	insert into Bookings (PassengerId, FlightId,Amount,Price) values(@id_user,@id_flight,@amount,@price)
-	update Bookings set Bookings.Price *= @amount from Bookings 
+	select top (1) @id_booking = Bookings.BookingId from Bookings where Bookings.Price = @price order by Bookings.BookingDateTime;
+	update Bookings set Bookings.Price *= @amount from Bookings where Bookings.BookingId = @id_booking;
 	update Flights set Flights.TotalPlaces -= @amount from Flights where Flights.FlightId = @id_flight
 end;
 
 drop procedure sp_NewAddOrder;
 
-exec sp_NewAddOrder @id_flight = 1, @id_user = 1, @amount = 5, @price = 300;
+exec sp_NewAddOrder @id_flight = 1, @id_user = 1, @amount = 5, @price = 3900;
 
 ----ОБНОВЛЕНИЕ СТАТУСА ЗАКАЗА ЧЕРЕЗ ЛИЧНЫЙ КАБИНЕТ ПОЛЬЗОВАТЕЛЯ----ДОБАВИТЬ ПОЛЕ OrderStatus-------------------------
 ----ОБНОВЛЕНИЕ СТАТУСА ЗАКАЗА ЧЕРЕЗ ПАНЕЛЬ АДМИНИСТРАТОРА------------------------------------------------------------
@@ -529,6 +535,7 @@ begin
 	DECLARE @statusCanceled int;
 	select @statusConfirmed = (select COUNT(*) from Flights where Flights.Status = 'Completed')
 	select @statusCanceled = (select COUNT(*) from Flights where Flights.Status = 'Canceled')
+	--если рейс комплитед,то мы задаём условие в каком промежутке ищем рейсы и считаем колличество купленных билетов ------------
 	insert into Statistic(ConfirmedFlightsCount,CanceledFlightCount)
 	values (@statusConfirmed,@statusCanceled)
 end;
@@ -536,7 +543,7 @@ end;
 exec sp_CompletedCount;
 
 
-go
+go ------------под вопросом
 create procedure sp_UpdateCount
 as
 begin
