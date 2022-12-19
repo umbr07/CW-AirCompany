@@ -385,7 +385,7 @@ begin
 	update Bookings set Bookings.Status = @status from Bookings where Bookings.BookingId = @id_booking
 end;
 
-exec sp_OrderStatus @id_booking = 1;
+exec sp_OrderStatus @id_booking = 4;
 
 ----Delete Order--------------------------------------
 go
@@ -533,26 +533,32 @@ as
 begin
 	DECLARE @statusConfirmed int;
 	DECLARE @statusCanceled int;
+	DECLARE @Profit int;
 	select @statusConfirmed = (select COUNT(*) from Flights where Flights.Status = 'Completed')
 	select @statusCanceled = (select COUNT(*) from Flights where Flights.Status = 'Canceled')
+	select @Profit = (select SUM(Bookings.Price) from Bookings where CAST(Bookings.BookingDateTime AS time)   BETWEEN CAST('04:00:00' AS time) AND CAST('12:35:00' AS time) and Bookings.Status = 'Confirmed')
 	--если рейс комплитед,то мы задаём условие в каком промежутке ищем рейсы и считаем колличество купленных билетов ------------
-	insert into Statistic(ConfirmedFlightsCount,CanceledFlightCount)
-	values (@statusConfirmed,@statusCanceled)
+	insert into Statistic(ConfirmedFlightsCount,CanceledFlightCount,Profit)
+	values (@statusConfirmed,@statusCanceled,@Profit)
 end;
+
+SELECT * FROM Bookings WHERE CAST(Bookings.BookingDateTime AS time)   BETWEEN CAST('04:00:00' AS time) AND CAST('12:35:00' AS time)
 
 exec sp_CompletedCount;
 
+drop procedure sp_CompletedCount;
 
-go ------------под вопросом
-create procedure sp_UpdateCount
-as
-begin
-	DECLARE @statusConfirmed int;
-	DECLARE @statusCanceled int;
-	select @statusConfirmed = (select COUNT(*) from Flights where Flights.Status = 'Completed')
-	select @statusCanceled = (select COUNT(*) from Flights where Flights.Status = 'Canceled')
-	update Statistic set Statistic.ConfirmedFlightsCount = @statusConfirmed
-	update Statistic set Statistic.CanceledFlightCount = @statusCanceled
-end;
+--go ------------ПОД ВОПРОСОМ ОБНОВЛЕНИЕ ДАННЫХ СТАТИСТИКИ
 
-	exec sp_UpdateCount;
+--create procedure sp_UpdateCount
+--as
+--begin
+--	DECLARE @statusConfirmed int;
+--	DECLARE @statusCanceled int;
+--	select @statusConfirmed = (select COUNT(*) from Flights where Flights.Status = 'Completed')
+--	select @statusCanceled = (select COUNT(*) from Flights where Flights.Status = 'Canceled')
+--	update Statistic set Statistic.ConfirmedFlightsCount = @statusConfirmed
+--	update Statistic set Statistic.CanceledFlightCount = @statusCanceled
+--end;
+
+--	exec sp_UpdateCount;
