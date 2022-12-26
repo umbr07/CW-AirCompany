@@ -41,7 +41,6 @@ create table Users (
 drop table Users;
 
 create index id_user on Users(Id);
-
 drop index Users.id_user;
 
 --------Flights table----------
@@ -49,11 +48,11 @@ create table Flights (
 	FlightId int not null IDENTITY Primary key,
 	FlightNumber int not null,
 	DepartureDateTime date not null,
-	TimeDepart time not null,
+--	TimeDepart time not null,
 	DepartureAirport varchar(50) not null,
 	TotalPlaces int not null check(TotalPlaces <= 200 and TotalPlaces >= 0),
 	ArrivalDateTime date not null,
-	TimeArrival time not null,
+--	TimeArrival time not null,
 	ArrivalAirport varchar(50) not null,
 	Price int not null,
 	Status varchar(50) not null DEFAULT 'In process',
@@ -192,7 +191,7 @@ exec sp_GetUser @login = 'Admin', @password = '12345', @role = 1;
 
 drop procedure sp_GetUser;
 
---Update User-----------------------------
+--Update User---œŒƒ ¬Œœ–Œ—ŒÃ ≈Ÿ®  ¿  œ–¿¬»À‹ÕŒ —ƒ≈À¿“‹ ◊≈–≈« œ–»ÀŒ∆≈Õ»≈---
 go
 CREATE PROCEDURE sp_UpdateUsers
 	@login varchar(50),
@@ -210,7 +209,7 @@ drop procedure sp_UpdateUsers;
 
 
 
---Delete User--------------------------------
+--Delete User--
 go
 CREATE PROCEDURE sp_DeleteUsers
 	@id_user int
@@ -315,25 +314,24 @@ go
 Create procedure sp_AddFlight
 	@Flightnumber int,
 	@DepartureDateTime date,
-	@TimeDeparture time,
+--	@TimeDeparture time,
 	@Departureairport varchar(50),
 	@Totalplaces int, --Ó„‡ÌË˜ÂÌËÂ 
 	@ArrivalDateTime date,
-	@TimeArrival time,
+--	@TimeArrival time,
 	@Arrivalairport varchar(50),
 	@price int,
 	@FlightClass int
 as
 begin
-	insert into Flights(FlightNumber, DepartureDateTime,TimeDepart, DepartureAirport, TotalPlaces, ArrivalDateTime,TimeArrival,ArrivalAirport,Price,FlightClass)
-	values (@Flightnumber, @DepartureDateTime,@TimeDeparture, @Departureairport, @Totalplaces,@ArrivalDateTime,@TimeArrival, @Arrivalairport, @price,@FlightClass)
+	insert into Flights(FlightNumber, DepartureDateTime, DepartureAirport, TotalPlaces, ArrivalDateTime,ArrivalAirport,Price,FlightClass)
+	values (@Flightnumber, @DepartureDateTime, @Departureairport, @Totalplaces,@ArrivalDateTime, @Arrivalairport, @price,@FlightClass)
 end;
 
 
 
-exec sp_AddFlight @Flightnumber = 1, @DepartureDateTime = '16-12-2022',@TimeDeparture='16:37:00', @Departureairport = 'Los-Angeles',@Totalplaces = 200, @ArrivalDateTime = '16-12-2022',@TimeArrival = '20:59:00',@Arrivalairport = 'Paris', @price = 780,@FlightClass = 1;
-exec sp_AddFlight @Flightnumber = 2, @DepartureDatetime = '18-12-2022',@TimeDeparture='09:56:00',@Departureairport = 'Moskow',@Totalplaces = 200, @ArrivalDatetime = '19-12-2022',@TimeArrival = '12:25:00', @Arrivalairport = 'Los-Angeles', @price = 1640, @FlightClass = 2;
-
+exec sp_AddFlight @Flightnumber = 1, @DepartureDateTime = '16-12-2022', @Departureairport = 'Los-Angeles',@Totalplaces = 200, @ArrivalDateTime = '16-12-2022',@Arrivalairport = 'Paris', @price = 780,@FlightClass = 1;
+exec sp_AddFlight @Flightnumber = 2, @DepartureDatetime = '18-12-2022 16:37:00',@Departureairport = 'Moskow',@Totalplaces = 200, @ArrivalDatetime = '19-12-2022 07:45', @Arrivalairport = 'Los-Angeles', @price = 1640, @FlightClass = 2;
 exec sp_AddFlight @Flightnumber = 3, @DepartureDatetime = '18-12-2022 8:00',@Departureairport = 'Berlin',@Totalplaces = 200, @ArrivalDatetime = '18-12-2022 15:45', @Arrivalairport = 'Moskow', @price = 640, @FlightClass = 1;
 exec sp_AddFlight @Flightnumber = 4, @DepartureDatetime = '20-12-2022 12:28',@Departureairport = 'Berlin',@Totalplaces = 200, @ArrivalDatetime = '20-12-2022 19:56', @Arrivalairport = 'Paris', @price = 340, @FlightClass =2;
 
@@ -414,15 +412,14 @@ exec sp_GetFlights;
 go
 create procedure sp_SearchFlight
 	@DepartureDatetime date = null,
-	@TimeDepart time = null,
+--	@TimeDepart time = null,
 	@Departureairport varchar(50) = null,
 	@ArrivalAirport varchar(50) = null
 as
 begin try
-	if @DepartureDatetime is not null and @Departureairport is not null and @ArrivalAirport is not null and @TimeDepart is not null
-			Select Flights.FlightNumber, Flights.DepartureDateTime,Flights.TimeDepart, Flights.DepartureAirport, Flights.TotalPlaces,Flights.ArrivalDateTime,Flights.TimeArrival, Flights.ArrivalAirport, Flights.Price
-		from Flights where Flights.DepartureDateTime = @DepartureDatetime and Flights.ArrivalAirport = @ArrivalAirport and Flights.DepartureAirport = @Departureairport and Flights.TimeDepart = @TimeDepart
-	
+	if @DepartureDatetime is not null and @Departureairport is not null and @ArrivalAirport is not null
+			Select Flights.FlightNumber, Flights.DepartureDateTime, Flights.DepartureAirport, Flights.TotalPlaces,Flights.ArrivalDateTime, Flights.ArrivalAirport, Flights.Price
+		from Flights where Flights.DepartureDateTime = @DepartureDatetime and Flights.ArrivalAirport = @ArrivalAirport and Flights.DepartureAirport = @Departureairport
 	else if @Departureairport is not null and @ArrivalAirport is not null
 		Select Flights.FlightNumber, Flights.DepartureDateTime, Flights.DepartureAirport, Flights.TotalPlaces, Flights.ArrivalDateTime, Flights.ArrivalAirport, Flights.Price
 		from Flights where Flights.DepartureAirport = @Departureairport and Flights.ArrivalAirport = @ArrivalAirport
@@ -437,7 +434,7 @@ begin catch
         RETURN -1;
 end catch
 
-exec sp_SearchFlight @DepartureDatetime = '2022-12-16', @Departureairport = 'Los-Angeles', @ArrivalAirport = 'Paris',@TimeDepart = '16:37';
+exec sp_SearchFlight @DepartureDatetime = '2022-12-16', @Departureairport = 'Los-Angeles', @ArrivalAirport = 'Paris';
 
 exec sp_SearchFlight @Departureairport = 'Moskow', @ArrivalAirport = 'Los-Angeles';
 
@@ -547,6 +544,9 @@ begin
 end;
 
 exec sp_ShowOrder;
+
+--------------------------------------------Triggers and Procedure on Tickets----------------------------------------------
+----—ƒ≈À¿“‹ ƒŒ¡¿¬À≈Õ»≈ ¡»À≈“¿ ◊≈–≈« “–»√≈– œ–» —–¿¡¿“€¬¿Õ»» œ–Œ÷≈ƒ”–€ »«Ã≈Õ≈Õ»≈ —“¿“”—¿ «¿ ¿«¿----
 
 
 --------------------------------------------Procedure on Staff----------------------------------------------
